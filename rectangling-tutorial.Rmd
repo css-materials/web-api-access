@@ -15,7 +15,9 @@ set.seed(123)
 theme_set(theme_minimal())
 ```
 
-Not all lists are easily coerced into data frames by simply calling `content() %>% as_tibble()`. Unless your list is perfectly structured, this will not work. OMDB example with "Sharkando" (you need your own API key to make this work -- replace it when it says "omdb_key"):
+Not all lists are easily coerced into data frames by simply calling `content() %>% as_tibble()`. Unless your list is perfectly structured, this will not work! 
+
+OMDB example with "Sharkando" (you need your own API key to make this work -- see `API_queries_OMDb.Rmd` tutorial before this one):
 
 ```{r omdb-recursive, error = TRUE, warning = FALSE}
 
@@ -24,7 +26,7 @@ sharknado <- GET(
   query = list(
     t = "Sharknado",
     y = 2013,
-    apikey = getOption("omdb_key")
+    apikey = omdb_key
   )
 )
 
@@ -33,27 +35,32 @@ content(sharknado, as = "parsed", type = "application/json") %>%
   as_tibble()
 ```
 
-What happened? Look at the structure of `content()`:
+Look at the structure of `content()`:
 
 ```{r omdb-str, dependson = "omdb-recursive"}
 content(sharknado) %>%
   str()
 ```
 
-Look at the `ratings` element: **it is a data frame**. Remember that data frames are just a special type of list, so what we have here is a list inside of a list (aka a **recursive list**). We cannot easily **flatten** this into a data frame, because the `ratings` element is not an atomic vector of length 1 like all the other elements in `sharknado`. Instead, we have to think of another way to convert it to a data frame.
+Look at the `ratings` element: **it is a data frame**. 
+
+Remember that data frames are just a special type of list, so another way to think about it is that here we have a list inside of a list: a **recursive list.** 
+
+We cannot easily **flatten** such list (here `ratings`) into a data frame. Instead, we have to think of another way to convert it to a data frame.
 
 
 ## Rectangling and `tidyr`
 
-Rectangling means taking deeply nested list (often sourced from wild caught JSON or XML) and taming it into a tidy data set of rows and columns. There are three functions from `tidyr` that are particularly useful for rectangling:
+In R "Rectangling" means **transforming non-rectangular data (often nested lists) into a rectangular format (often a data frame).** 
+
+Use these functions from `tidyr` for rectangling:
 
 * `unnest_longer()` takes each element of a list-column and makes a new row.
 * `unnest_wider()` takes each element of a list-column and makes a new column.
 * `unnest_auto()` guesses whether you want `unnest_longer()` or `unnest_wider()`.
-* `hoist()` is similar to `unnest_wider()` but only plucks out selected
-  components, and can reach down multiple levels.
+* `hoist()` is similar to `unnest_wider()` but only plucks out selected components, and can reach down multiple levels.
   
-A very large number of data rectangling problems can be solved by combining these functions with a splash of `dplyr`. 
+Most data rectangling problems can be solved by combining these functions with `dplyr`. 
 
 
 ## Load packages
@@ -73,7 +80,9 @@ library(repurrrsive)
 
 ## Inspecting and exploring lists
 
-Before you can apply functions to a list, you should understand it. Especially when dealing with poorly documented APIs, you may not know in advance the structure of your list, or it may not be the same as the documentation. `str()` is the base R method for inspecting a list by printing the structure of the list to the console. If you have a large list, this will be a lot of output. `max.levels` and `list.len` can be used to print only a partial structure for this list.
+Before you can apply functions to a list, ensure you understand it. Especially when dealing with poorly documented APIs, you may not know in advance the structure of your list, or it may not be the same as the documentation. 
+
+`str()` is the base R method for inspecting a list by printing the structure of the list to the console. If you have a large list, this will be a lot of output. `max.levels` and `list.len` can be used to print only a partial structure for this list.
 
 Alternatively, you can use [`listviewer::jsonedit()`](https://github.com/timelyportfolio/listviewer) to interactively view the list within RStudio.
 
