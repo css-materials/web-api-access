@@ -1,5 +1,5 @@
 ---
-title: "Writing API queries"
+title: "Writing API queries without a R wrapper: OMDb example"
 output: html_document
 ---
 
@@ -18,9 +18,9 @@ theme_set(theme_minimal())
 
 ## Register to OMDb and get your key
 
-Go to the OMDb website: https://www.omdbapi.com/ and click on the "API Key" tab to generate your API key. You can get a free key (1,000 daily limit) by entering your email. 
+Go to the OMDb website: https://www.omdbapi.com/ and click on the "API Key" tab to generate your API key. You can get a free key by entering your email. 
 
-Set up your key in your R profile (recommended), as described in the slides and in `geonames.Rmd`. Then, retrieve the key by running the following code:
+Set up your key in your R profile (recommended), as described in `geonames.Rmd`. Then, retrieve the key by running the following code:
 
 ```{r key-secure}
 omdb_key <- getOption("replace_this_with_your_omdb_key")
@@ -29,7 +29,7 @@ omdb_key <- getOption("replace_this_with_your_omdb_key")
 Otherwise, set up the key as follows (not recommended, OK for quick check, but do not put this on GitHub or share with others):
 
 ```{r key-not-secure}
-omdb_key <- "replace_this_with_your_omdb_key"
+omdb_key <- "64cf12f0"
 ```
 
 Note the key you set up here is called in the code chuck below. **Without a key this code won't run!**
@@ -37,14 +37,16 @@ Note the key you set up here is called in the code chuck below. **Without a key 
 
 ## Using an API without a R wrapper package
 
-What happens if someone has not already written a package for the API from which we want to obtain data? We have to write our own code and function to interact with the API!
+What if no wrapper package exist? We have to write our own code and function to interact with the API!
 
-First, we're going to examine the structure of API requests via the [Open Movie Database](http://www.omdbapi.com/). OMDb is very similar to IMDB, except it has a nice, simple API. We can go to the website, input some search parameters, and obtain both the JSON query and the response from it. 
+First, we're going to examine the structure of API requests via the [Open Movie Database](https://www.omdbapi.com/). 
+
+OMDb is very similar to IMDB, except it has a nice, simple API. We can go to the website, input some search parameters, and obtain both the JSON query and the response from it. 
 
 
 ### Constructing the API GET Request
 
-Likely the most challenging part of using web APIs is learning how to format your GET request URLs. While there are common architectures for such URLs, each API has its own unique quirks. For this reason, carefully reviewing the API documentation is critical.
+The most challenging part of using web APIs is learning how to format your GET request URLs. While there are common architectures for such URLs, each API has its own unique quirks. For this reason, reviewing the API documentation is critical.
 
 Most GET request URLs for API querying have three or four components:
 
@@ -55,7 +57,7 @@ Most GET request URLs for API querying have three or four components:
 
 ### Determining the shape of the API request
 
-You can play around with the parameters on the [OMDB website](http://www.omdbapi.com/), and look at the resulting API call and the query you get back.
+You can play around with the parameters on the [OMDB website](https://www.omdbapi.com/), and look at the resulting API call and the query you get back.
 
 Let's experiment with different values of the `title` and `year` fields. Notice the pattern in the request. For example let's consider the 2013 television disaster thriller *Sharknado*. Given the Title "Sharknado" and the release year "2013", we get:
 `http://www.omdbapi.com/?apikey=[apikey]&t=Sharknado&y=2013`
@@ -88,12 +90,12 @@ We can read the content of the server's response using the `content()` function:
 ```{r httr-json, dependson = "sharknado"}
 content(sharknado, type = "text") %>%
   # print the contents in a clear structure
-  prettify()
+  print()
 ```
 
 What you can see here is **J**ava**S**cript **O**bject **N**otation and e**X**tensible **M**arkup **L**anguage (JSON) text encoded as plain text. JSON is a format for storing data like a nested array (list) built on key/value pairs.
 
-We want to convert the results from JSON format to something easier to work with - notably a data frame. For relatively simple API queries, one can use `as_tibble()` to convert the output to a data frame:
+We want to convert the results from JSON format to something easier to work with: a data frame! For relatively simple API queries, one can use `as_tibble()` to convert the output to a data frame:
 
 ```{r sharknado-content, dependson = "sharknado"}
 sharknado_df <- content(sharknado) %>%
@@ -177,15 +179,16 @@ NB: do not run this multiple times (e.g., do not run this every time you run a s
 omdb_api_slow <- slowly(f = omdb_api, rate = rate_delay(1))
 
 # iterate over all the films
-sharknados_df <- map_dfr(.x = sharknados, .f = omdb_api_slow, api_key = getOption("omdb_key"))
+sharknados_df <- map_dfr(.x = sharknados, 
+                         .f = omdb_api_slow, 
+                         api_key = omdb_key)
 sharknados_df
 ```
 
 
 ## Acknowledgments
 
-- Example drawn from Benjamin's Soltoff "Computing for the Social Science"
-- Iterative operation drawn from Rochelle Terman's [Collecting Data from the Web](https://plsc-31101.github.io/course/collecting-data-from-the-web.html)
+- Example developed starting from Benjamin's Soltoff "Computing for the Social Science" and from Rochelle Terman's [Collecting Data from the Web](https://plsc-31101.github.io/course/collecting-data-from-the-web.html)
 
 [^api-guide]: An excellent beginning resource for APIs (including HTTP basics) is [this simple guide](https://zapier.com/learn/apis/).
 [^status]: [HTTP Status Codes](http://www.restapitutorial.com/httpstatuscodes.html).
