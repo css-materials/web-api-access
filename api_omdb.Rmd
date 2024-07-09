@@ -29,7 +29,7 @@ omdb_key <- getOption("replace_this_with_your_omdb_key")
 Otherwise, set up the key as follows (not recommended, OK for quick check, but do not put this on GitHub or share with others):
 
 ```{r key-not-secure}
-omdb_key <- "64cf12f0"
+omdb_key <- "type_yourkey_here"
 ```
 
 Note the key you set up here is called in the code chuck below. **Without a key this code won't run!**
