@@ -5,13 +5,23 @@ output: html_document
 
 ## The Manifesto Project with `manifestoR`
 
-[The Manifesto Project](https://manifesto-project.wzb.eu/) collects and organizes political party manifestos from around the world. It currently covers over 1000 parties from 1945 until today in over 50 countries on five continents. We can use the [`manifestoR` package](https://github.com/ManifestoProject/manifestoR) to access the API and download those manifestos for analysis in R.
+[The Manifesto Project](https://manifesto-project.wzb.eu/) collects and organizes political party manifestos from around the world. It currently covers over 1000 parties from 1945 until today in over 50 countries on five continents.
+
+We can use the `manifestoR wrapper` to access the API and download those manifestos for analysis in R. 
+
+Info and Documentation:
+
+* https://manifesto-project.wzb.eu/tutorials/firststepsmanifestoR
+* https://cran.r-project.org/web/packages/manifestoR/manifestoR.pd
+
 
 ### Load library and set API key
 
 ## API authentication
 
-Accessing data from the Manifesto Project API requires an authentication key. You can create an account and key [here](https://manifesto-project.wzb.eu/signup). Here I store my key in `.Rprofile` and retrieve it using `mp_setapikey()` (different packages have different storage methods).
+Accessing data from the Manifesto Project API requires an account and authentication key, register [here](https://manifesto-project.wzb.eu/signup). 
+
+Here I store my key in `.Rprofile` using the same method described in the `geonames.Rmd` file. However, to retrieve the key I use the function `mp_setapikey()`.
 
 ```{r manifestor-load, message = FALSE, cache = FALSE}
 library(manifestoR)

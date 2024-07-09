@@ -7,7 +7,11 @@ output: html_document
 
 [`tidycensus`](https://walkerke.github.io/tidycensus/index.html) provides an interface with the US Census Bureau's decennial census and American Community APIs and returns tidy data frames with optional simple feature geometry. 
 
-These APIs require a free key you can obtain [here](https://api.census.gov/data/key_signup.html). Rather than storing your key in `.Rprofile`, `tidycensus` includes `census_api_key()` which automatically stores your key in `.Renviron`, which is basically a global version of `.Rprofile`. Anything stored in `.Renviron` is automatically loaded anytime you initiate R on your computer, regardless of the project or file location. Once you get your key, load it:
+These APIs require a free key you can obtain [here](https://api.census.gov/data/key_signup.html). 
+
+Rather than storing your key in `.Rprofile` (as you would do for most APIs! see the `geonames.Rmd` for details), `tidycensus` includes `census_api_key()` which automatically stores your key in `.Renviron`, which is basically a global version of `.Rprofile`. 
+
+Anything stored in `.Renviron` is automatically loaded anytime you initiate R on your computer, regardless of the project or file location. Once you get your key, load it:
 
 ```{r tidycensus}
 library(tidycensus)

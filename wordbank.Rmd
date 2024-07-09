@@ -1,58 +1,71 @@
 ---
-title: "Word Bank"
+title: "Word Bank API and `wbstats` wrapper"
 output: html_document
 ---
 
-## Word Bank database with `wbstats`
+### Word Bank database info
 
-The [World Bank](https://www.worldbank.org/) contains a rich and detailed set of socioeconomic indicators spanning several decades and dozens of topics. Their data is available for bulk download as CSV files from their [website](https://data.worldbank.org/). You previously practiced importing this data for all countries (see HW5). However, frequently you only need to obtain a handful of indicators or a subset of countries.
+* [World Bank](https://www.worldbank.org/): this website has many socioeconomic indicators spanning several decades and dozens of topics. Their data is available for bulk download as CSV files, and you previously practiced importing this data in HW5. However, frequently you only need to obtain a handful of indicators or a subset of countries.
 
-To provide more granular access to this information, the World Bank provides a [RESTful API](https://datahelpdesk.worldbank.org/knowledgebase/topics/125589) for querying and obtaining a portion of their database programmatically. 
+* [World Bank API](https://datahelpdesk.worldbank.org/knowledgebase/topics/125589): use it for querying and obtaining a portion of their database using code. 
 
-The [`wbstats`](http://nset-ornl.github.io/wbstats/) provides a wrapper for R to allow for relatively easy access to the API and return the results in a tidy data frame.
+* [`wbstats`](https://github.com/gshs-ornl/wbstats): a wrapper for R for easy access to the API and returns data in a tidy format.
 
 ```{r}
+# if you are working with your local R, install wbstats first
 library(wbstats)
 library(tidyverse)
 ```
 
 
-### Finding available data with `wb_cachelist`
+### The`wbstats` wrapper: search for data with `wb_cachelist` and `wb_search`
 
-`wb_cachelist` contains a snapshot of available countries, indicators, and other relevant information obtainable through the WB API:
+Let's see a few examples on how we can interact with this API using the `wbstats` wrapper. 
 
+To develop this code, I followed the wrapper documentation and examples, provided in the wrapper GitHub repository: `https://github.com/gshs-ornl/wbstats/blob/master/vignettes/wbstats.md`
+
+`wb_cachelist`: contains a snapshot of available countries, indicators, and other relevant info obtainable through this API:
 ```{r wb-cachelist}
+# display on.y the top level of the object structure
 str(wb_cachelist, max.level = 1)
+```
+
+Refining our search:
+```{r}
 glimpse(wb_cachelist$countries)
+glimpse(wb_cachelist$indicators)
 ```
 
+Refining our search even more:
+```{r}
+wb_cachelist$indicators
+wb_cachelist$indicators$indicator
+```
 
-### Search available data with `wb_search()`
+For easier access to the indicators, we can use the [web interface](https://data.worldbank.org/indicator) to determine specific indicators and their IDs. 
 
-`wb_search()` searches through the `wb_cachelist$indicators` data frame to find indicators that match the search pattern. Alternatively, you can use the [web interface](https://data.worldbank.org/indicator) to determine specific indicators and their IDs:
+For example, let's imagine you only need data about unemployment. In the search bar of the web interface, type your search word (here unemployment). You will see all indicators related to unemployment. Explore a few of them. Notice you need to click on "Details" to get the indicator ID
 
-```{r wb-search}
+Then, go back to R and do the same using the function `wb_search()`
+
+```{r}
 wb_search("unemployment")
-wb_search("labor force")
-```
-
-```{r wb-search-limit}
-# limit search to just the indicator name
-wb_search("labor force", fields = "indicator")
 ```
 
 
-### Downloading data with `wb_data()`
+### The`wbstats` wrapper: download data with `wb_data()`
 
 Once you have the set of indicators you would like to obtain, you can use the `wb_data()` function to generate the API query and download the results. 
 
-For example, if we want to obtain information on [the percent of females participating in the labor force](https://data.worldbank.org/indicator/SL.TLF.TOTL.FE.ZS?view=chart). The indicator ID is `SL.TLF.TOTL.FE.ZS`. We can download the indicator for all countries from 1990-2020 using:
+For example, if we want to obtain information on [the percent of females participating in the labor force](https://data.worldbank.org/indicator/SL.TLF.TOTL.FE.ZS?view=chart). The indicator ID is `SL.TLF.TOTL.FE.ZS`. 
+
+We can download the indicator for all countries and from 1990 to 2023:
 
 ```{r female-labor}
 female_labor <- wb_data(
   indicator = "SL.TLF.TOTL.FE.ZS",
   start_date = 1990,
-  end_date = 2020
+  end_date = 2023
 )
 female_labor
 ```
@@ -68,36 +81,53 @@ female_labor <- wb_data(
 female_labor
 ```
 
-NB: **do not run the same APIs query code multiple times!** Run it once, and when you have collected your data, save them in a csv, and import them back (vs. interactively download them every time you run the script). Set your chunk options as `cache = TRUE` https://bookdown.org/yihui/rmarkdown-cookbook/cache.html
+NB: **do not run the same APIs query code multiple times!** Run it once, and when you have collected your data, save them in a .`csv` file, and import them back (vs. interactively download them every time you run the script). Like that:
+
+```{r}
+# write data to csv
+write_csv(female_labor, "wb_female_labor.csv")
+```
+
+```{r}
+# import data back
+f_labor <- read_csv("wb_female_labor.csv")
+glimpse(f_labor)
+```
+
+### Visualize the data in `ggplot2`
 
 Once the data are obtained, we can analyze them, for example:
 
-```{r female-labor-plot, dependson = "female-labor-clean", message = FALSE, warning = FALSE}
-ggplot(data = female_labor, mapping = aes(x = date, y = fem_lab_part)) +
+```{r female-labor-plot, message = FALSE, warning = FALSE}
+
+ggplot(data = f_labor,
+       mapping = aes(x = date, y = fem_lab_part)) +
   geom_line(mapping = aes(group = country), alpha = .1) +
   geom_smooth() +
-  # documentation https://rdrr.io/cran/scales/man/percent_format.html
+  # https://rdrr.io/cran/scales/man/percent_format.html
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   labs(
-    title = "Labor force participation",
+    title = "Labor force participation grouped by country",
     x = "Year",
     y = "Percent of total labor force which is female",
     caption = "Source: World Bank"
   )
 ```
 
-By default, `wb_data()` returns queries as data frames in a wide format. So if we request multiple indicators, each indicator will be stored in its own column:
+By default, `wb_data()` returns queries as data frames in a wide format. So if we request multiple indicators from the API, each indicator will be stored in its own column:
 
-```{r female-educ, message = FALSE, warning = FALSE}
+```{r message = FALSE, warning = FALSE}
 female_vars <- wb_data(
   indicator = c(
     "fem_lab_part" = "SL.TLF.TOTL.FE.ZS",
     "fem_educ_sec" = "SE.SEC.CUAT.UP.FE.ZS"
   ),
   start_date = 1990,
-  end_date = 2020
+  end_date = 2023
 )
+```
 
+```{r  message = FALSE, warning = FALSE}
 ggplot(data = female_vars, mapping = aes(x = fem_educ_sec, y = fem_lab_part)) +
   geom_point(alpha = .2) +
   geom_smooth() +
