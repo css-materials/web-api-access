@@ -3,6 +3,9 @@ title: "Writing API queries without a R wrapper: OMDb example"
 output: html_document
 ---
 
+**Main goal of this tutorial: illustrate how to use an API without a R wrapper using the OMDb API as example (Tip: opt for APIs with an R tutorial, unless the API documentation is very well done, like in this example)** 
+
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 ```
@@ -19,7 +22,6 @@ theme_set(theme_minimal())
 ## Register to OMDb and get your key
 
 Go to the OMDb website: https://www.omdbapi.com/ and click on the "API Key" tab to generate your API key. You can get a free key by entering your email. 
-
 Set up your key in your R profile (recommended), as described in `geonames.Rmd`. Then, retrieve the key by running the following code:
 
 ```{r key-secure}

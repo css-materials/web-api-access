@@ -3,6 +3,9 @@ title: "API username and password using `geonames` as example"
 output: html_document
 ---
 
+**Main goal of this tutorial: illustrate how to store API key and username using the `geonames` API as example** 
+
+
 ### GeoNames geographical database with `geonames`
 
 GeoNames offers geographical information for all countries and other locations. The `geonames` package provides a wrapper for R.

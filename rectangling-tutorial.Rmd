@@ -1,6 +1,10 @@
 ---
 title: "Rectangling or Simplifying lists"
+output: html_document
 ---
+
+**Main goal of this tutorial: illustrate how to unnest nested data structures (usually lists)**
+
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(cache = TRUE)

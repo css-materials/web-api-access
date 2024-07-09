@@ -3,6 +3,9 @@ title: "Word Bank API and `wbstats` wrapper"
 output: html_document
 ---
 
+**Main goal of this tutorial: illustrate how to use an API with a R wrapper using the Word Bank API as example and its R wrapper `wbstats`** 
+
+
 ### Word Bank database info
 
 * [World Bank](https://www.worldbank.org/): this website has many socioeconomic indicators spanning several decades and dozens of topics. Their data is available for bulk download as CSV files, and you previously practiced importing this data in HW5. However, frequently you only need to obtain a handful of indicators or a subset of countries.
@@ -25,18 +28,19 @@ Let's see a few examples on how we can interact with this API using the `wbstats
 To develop this code, I followed the wrapper documentation and examples, provided in the wrapper GitHub repository: `https://github.com/gshs-ornl/wbstats/blob/master/vignettes/wbstats.md`
 
 `wb_cachelist`: contains a snapshot of available countries, indicators, and other relevant info obtainable through this API:
+
 ```{r wb-cachelist}
 # display on.y the top level of the object structure
 str(wb_cachelist, max.level = 1)
 ```
 
 Refining our search:
+
 ```{r}
 glimpse(wb_cachelist$countries)
 glimpse(wb_cachelist$indicators)
 ```
 
-Refining our search even more:
 ```{r}
 wb_cachelist$indicators
 wb_cachelist$indicators$indicator
@@ -56,7 +60,6 @@ wb_search("unemployment")
 ### The`wbstats` wrapper: download data with `wb_data()`
 
 Once you have the set of indicators you would like to obtain, you can use the `wb_data()` function to generate the API query and download the results. 
-
 For example, if we want to obtain information on [the percent of females participating in the labor force](https://data.worldbank.org/indicator/SL.TLF.TOTL.FE.ZS?view=chart). The indicator ID is `SL.TLF.TOTL.FE.ZS`. 
 
 We can download the indicator for all countries and from 1990 to 2023:
@@ -93,6 +96,7 @@ write_csv(female_labor, "wb_female_labor.csv")
 f_labor <- read_csv("wb_female_labor.csv")
 glimpse(f_labor)
 ```
+
 
 ### Visualize the data in `ggplot2`
 
