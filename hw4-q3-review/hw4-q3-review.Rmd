@@ -1,0 +1,110 @@
+---
+title: "HW04: Tidy data and Programming Exercises - Q3 Review"
+author: "Sabrina Nardin"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load library and data
+```{r, message = FALSE}
+library(tidyverse)
+data(iris)
+#head(iris)
+```
+
+### Question 3. Use the iris dataset to explore subsetting with `[]` and `[[ ]]` in R. The dataset contains 150 observations for three species (setosa, virginica, versicolor) of iris flower, and four features measured for each sample. All measurements are given in centimeters.
+
+There are different ways to interpret this question. The key point to remember is that base R and the tidyverse (dplyr) require different code. This tutorial provides a few examples to address the question.
+
+```{r}
+# [] df
+df <- iris["Sepal.Length"]
+class(df)
+is.data.frame(df)
+
+# [[]] vector
+v <- iris[["Sepal.Length"]]
+class(v)
+is.vector(v)
+```
+
+In this code:
+
+`[]` gives back a dataframe, because `[]` is designed to preserve the structure of the object you are subsetting, including keeping it as a data frame. 
+`[]` is used to select rows and columns in a data frame and keeps it as a dataframe
+
+`[[]]` gives back a vector because `[[]]` is designed to access the element inside a data frame or list and returns it as the actual object (a vector, in this case) not wrapped in a data frame or list.
+`[[]]` is used to extract elements from lists; we use it here because a dataframe as a whole can be seen as a list because contains multiple elements of different data types, but all of them are of the same length. The individual columns of a dataframe are all vectors, so when you use `[[]]` you get back the single column as a vector 
+
+Now let's subset with a condition: subset the variable or column `Sepal.Length` if its values or rows are bigger than 6
+
+```{r, error = TRUE}
+# [] returns a df using filter() from dplyr
+df <- iris[1] %>%
+  filter(Sepal.Length > 6) 
+class(df)
+typeof(df)
+
+# [[]] returns a vector but you get an error if you use filter() from dplyr
+# because the function filter() from dplyr only works on dataframes!
+v <- iris[[1]] %>%
+  filter(Sepal.Length > 6) 
+
+# so to use [[]] you need to base R instead
+# take a vector first, then apply condition > 6
+v <- iris[[1]]
+is.vector(v)
+v[v > 6]
+
+# or do the same in one step
+iris[[1]][iris[[1]] > 6]
+
+# or like this with $ and [dataframe$column,row] which is also base R syntax
+iris[iris$"Sepal.Length" > 6, "Sepal.Length"]
+iris[iris$Sepal.Length > 6, "Sepal.Length"]
+```
+
+When to use "" and when not use them to refer to variable names? It depends. The code below provides examples for three scenarios: only using base R, mixing base R with tidyverse, only using tidyverse 
+
+```{r, error = TRUE}
+# IF YOU ARE ONLY USING BASE R
+
+# with "" and base R only: works
+iris[["Sepal.Length"]][iris[["Sepal.Length"]] > 6]
+
+# without "" and base R only: does not work 
+iris[[Sepal.Length]][iris[[Sepal.Length]] > 6]
+
+# with or without "" and base R only: both options below works because the $ operator accepts both
+iris[iris$"Sepal.Length" > 6, "Sepal.Length"]
+iris[iris$Sepal.Length > 6, "Sepal.Length"]
+```
+
+```{r, error = TRUE}
+# IF YOU ARE MIXING BASE R and TIDYVERSE (DPLYR)
+
+# with "" for base R and without "" for dplyr: works
+iris["Sepal.Length"] %>%
+  filter(Sepal.Length > 6) 
+
+# without "": does not work, because base R wants ""
+iris[Sepal.Length] %>%
+  filter(Sepal.Length > 6)
+```
+
+```{r}
+# IF YOU ARE ONLY USING ONLY DPLYR 
+
+# no need to "" and no need to [] or [[]] use only dplyr verbs
+iris %>%
+  select(Sepal.Length) %>%
+  filter(Sepal.Length > 6)
+```
+
+Conclusion. It depends on whether you are using base R or the tidyverse (likely dplyr verbs) for subsetting columns, but as a general rule:
+
+* if you use base R for column subsetting: use "" to refer to the column name 
+* if you use dplyr for column subsetting: do not use "" to refer to the column name
