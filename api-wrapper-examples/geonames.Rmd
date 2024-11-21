@@ -48,15 +48,13 @@ Click [here](http://www.geonames.org/enablefreewebservice) to enable the free we
 Type this code in R, before interacting with the API: 
 ```{r}
 # replace "my_user_name" with your Geonames username
-#options(geonamesUsername = "my_user_name") 
+options(geonamesUsername = "my_user_name") 
 
 # same for the password
-#options(geonamesKey = "your_password")
+options(geonamesKey = "your_password")
 
 # then you type code to interact with the api
-
-options(geonamesUsername = "nardin")
-options(geonamesKey = "UWBTwhtMuv")
+#  you might need to enable free web service for this API (link above)
 ```
 
 This method is OK for a quick check but it is insecure! Especially if you put your work on GitHub. You don't want to commit this line and push it to our public GitHub page
